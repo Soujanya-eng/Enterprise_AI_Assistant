@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise AI Assistant - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { height: 100vh; background: #0f172a; color: #ffffff; display: flex; flex-direction: column; overflow: hidden; }
+        .dashboard-header { width: 100%; height: 60px; background-color: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); padding: 0 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .brand { font-weight: 700; font-size: 18px; color: #38bdf8; }
+        .logout-btn { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 6px 14px; border-radius: 6px; font-weight: 500; cursor: pointer; text-decoration: none; font-size: 14px; }
+        .logout-btn:hover { background: #ef4444; color: white; }
+        
+        .main-container { display: flex; flex: 1; height: calc(100vh - 60px); width: 100%; }
+        .sidebar { width: 260px; background: #1e293b; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; padding: 16px; }
+        .new-chat-btn { width: 100%; background: rgba(56, 189, 248, 0.1); border: 1px dashed #38bdf8; color: #38bdf8; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px; }
+        .history-label { font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; font-weight: 700; }
+        .history-item { padding: 10px 12px; border-radius: 6px; font-size: 14px; color: #cbd5e1; cursor: pointer; margin-bottom: 4px;}
+        .history-item.active { background: rgba(255, 255, 255, 0.05); color: #ffffff; }
+
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: #0f172a; position: relative; }
+        .chat-feed { flex: 1; padding: 30px; overflow-y: auto; max-width: 800px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; padding-bottom: 100px; }
+        
+        .welcome-msg { text-align: center; margin-top: 10vh; }
+        .welcome-msg h1 span { background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .welcome-msg p { color: #94a3b8; margin-top: 10px; }
+
+        .msg-row { display: flex; width: 100%; }
+        .msg-row.user-row { justify-content: flex-end; }
+        .msg-row.ai-row { justify-content: flex-start; }
+        
+        .bubble { max-width: 70%; padding: 12px 16px; border-radius: 12px; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
+        .user-row .bubble { background: #38bdf8; color: #0f172a; border-bottom-right-radius: 2px; }
+        .ai-row .bubble { background: #1e293b; color: #ffffff; border-bottom-left-radius: 2px; border: 1px solid rgba(255, 255, 255, 0.05); }
+
+        .input-wrapper { width: 100%; padding: 24px; background: linear-gradient(to top, #0f172a 70%, transparent); position: absolute; bottom: 0; left: 0; }
+        .ai-input-container { max-width: 800px; margin: 0 auto; background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 6px 14px; display: flex; align-items: center; gap: 12px; }
+        .ai-input-container input { flex: 1; background: transparent; border: none; outline: none; color: white; font-size: 15px; padding: 10px 0; }
+        .send-btn { background: #38bdf8; color: #0f172a; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .send-btn:hover { background: #7dd3fc; }
+    </style>
+</head>
+<body>
+
+    <header class="dashboard-header">
+        <div class="brand">Enterprise AI Panel</div>
+        <a href="/logout" class="logout-btn">Log Out</a>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <button class="new-chat-btn">+ New Thread</button>
+            <div class="history-label">Recent Operations</div>
+            <div class="history-item active">📝 Main Workspace Chat</div>
+        </aside>
+
+        <main class="chat-area">
+            <div class="chat-feed" id="chat-feed">
+                
+                {% if not past_chats %}
+                <div class="welcome-msg" id="welcome-msg">
+                    <h1>Welcome, <span>{{ user_name }}</span>!</h1>
+                    <p>How can I help you today?</p>
+                </div>
+                {% endif %}
+
+                {% for chat in past_chats %}
+                <div class="msg-row user-row">
+                    <div class="bubble">{{ chat.user_prompt }}</div>
+                </div>
+                <div class="msg-row ai-row">
+                    <div class="bubble">{{ chat.ai_response }}</div>
+                </div>
+                {% endfor %}
+                
+            </div>
+
+            <div class="input-wrapper">
+                <div class="ai-input-container">
+                    <input type="text" id="user-input" placeholder="Ask anything about enterprise metrics..." onkeydown="if(event.key === 'Enter') sendQuery()">
+                    <button class="send-btn" onclick="sendQuery()">Ask AI</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function sendQuery() {
+            const inputField = document.getElementById('user-input');
+            const chatFeed = document.getElementById('chat-feed');
+            const welcomeMsg = document.getElementById('welcome-msg');
+            const messageText = inputField.value.trim();
+
+            if (!messageText) return;
+
+            if (welcomeMsg) welcomeMsg.style.display = 'none';
+
+            appendBubble(messageText, 'user-row');
+            inputField.value = ''; 
+            chatFeed.scrollTop = chatFeed.scrollHeight; 
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
+
+                const data = await response.json();
+                
+                if (data.reply) {
+                    appendBubble(data.reply, 'ai-row');
+                } else if (data.error) {
+                    appendBubble("Error: " + data.error, 'ai-row');
+                } else {
+                    appendBubble("Error: Failed to process prompt parameters.", 'ai-row');
+                }
+            } catch (err) {
+                appendBubble("Connection lost. Please confirm local server application state.", 'ai-row');
+            }
+            
+            chatFeed.scrollTop = chatFeed.scrollHeight;
+        }
+
+        function appendBubble(text, rowClass) {
+            const feed = document.getElementById('chat-feed');
+            const row = document.createElement('div');
+            row.className = `msg-row ${rowClass}`;
+            row.innerHTML = `<div class="bubble">${text}</div>`;
+            feed.appendChild(row);
+        }
+
+        // Auto-scroll downward on layout launch
+        window.onload = function() {
+            const chatFeed = document.getElementById('chat-feed');
+            chatFeed.scrollTop = chatFeed.scrollHeight;
+        };
+    </script>
+</body>
+</html>

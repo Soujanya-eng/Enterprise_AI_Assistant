@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise AI Assistant</title>
+    <style>
+        /* Base Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Status / Navigation Bar */
+        .status-bar {
+            width: 100%;
+            background-color: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links button {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links button:hover {
+            color: #38bdf8;
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .main-content h1 {
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .main-content p {
+            color: #94a3b8;
+            font-size: 18px;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Status / Navigation Bar -->
+    <header class="status-bar">
+        <nav class="nav-links">
+            <button onclick="handleAuth('login')">Login</button>
+            <button onclick="handleAuth('signup')">Sign Up</button>
+        </nav>
+    </header>
+
+    <!-- Main Hero Section -->
+    <main class="main-content">
+        <h1>Enterprise AI Assistant</h1>
+        <p>Optimize your corporate workflows, analyze data safely, and scale your business operations with secure, custom artificial intelligence.</p>
+    </main>
+
+    <!-- JavaScript Routing Logic -->
+    <script>
+function handleAuth(action) {
+    const hasAccount = confirm("Do you have an account?\n\nClick 'OK' to Login.\nClick 'Cancel' to Sign Up.");
+    
+    if (hasAccount) {
+        window.location.href = "/login"; // Matches @app.route('/login')
+    } else {
+        window.location.href = "/signup"; // Matches @app.route('/signup')
+    }
+}
+
+    </script>
+
+</body>
+</html>
