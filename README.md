@@ -1,4 +1,4 @@
-# Enterprise Nexus: Secure Corporate AI Assistant
+# Enterprise Nexus: Secure Corporate AI Assistant(using prompt engineering)
 
 **Enterprise Nexus** is a secure, full-stack web application designed to optimize corporate workflows and provide intelligent workspace assistance. Powered by **Python (Flask)** and **SQLite**, it integrates seamlessly with Google's advanced **Gemini AI** model via an asynchronous architecture to deliver instant, real-time responses without reloading pages.
 
